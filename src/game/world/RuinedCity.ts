@@ -455,6 +455,15 @@ export function createRuinedCity(
         if (templates.has(key)) continue;
         const parts: ModuleTemplate[] = [];
         for (const [mat, geos] of byMat) {
+          // Alinha gpuType (a conversão marca atributos de forma inconsistente
+          // entre sub-meshes) usando a primeira geometria como referência.
+          for (const name of Object.keys(geos[0]!.attributes)) {
+            const refGpu = (geos[0]!.getAttribute(name) as THREE.BufferAttribute).gpuType;
+            for (const geo of geos) {
+              const attr = geo.getAttribute(name) as THREE.BufferAttribute | undefined;
+              if (attr && attr.gpuType !== refGpu) attr.gpuType = refGpu;
+            }
+          }
           const merged = geos.length === 1 ? geos[0]! : mergeGeometries(geos, false);
           if (!merged) continue;
           for (const geo of geos) if (geo !== merged) geo.dispose();
