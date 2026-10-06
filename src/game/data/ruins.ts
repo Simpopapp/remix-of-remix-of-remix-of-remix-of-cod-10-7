@@ -435,14 +435,14 @@ const SHELLS: ReadonlyArray<{
   s?: number;
 }> = [
   { g: "kit_brick", m: "Building_Small_1", x: -24, z: 56, ry: 0.15 },
-  { g: "kit_brick", m: "Building_Medium_2.001", x: 30, z: 56, ry: -0.2 },
+  { g: "kit_brick", m: "Building_Medium_2001", x: 30, z: 56, ry: -0.2 },
   { g: "kit_brick", m: "Building_Large_2", x: -44, z: 42, ry: 0.6 },
-  { g: "kit_brick", m: "Building_Medium_2.001", x: -46, z: 4, ry: Math.PI / 2 },
+  { g: "kit_brick", m: "Building_Medium_2001", x: -46, z: 4, ry: Math.PI / 2 },
   { g: "kit_brick", m: "Building_Small_1", x: 46, z: -12, ry: -Math.PI / 2 },
   { g: "kit_brick", m: "Building_Large_2", x: 46, z: 22, ry: -1.1 },
   { g: "kit_brick", m: "Building_Small_1", x: -48, z: -22, ry: 0.3 },
   { g: "kit_brick", m: "Building_Small_1", x: 0, z: -48, ry: Math.PI },
-  { g: "kit_brick", m: "Building_Medium_2.001", x: -30, z: -46, ry: 2.9 },
+  { g: "kit_brick", m: "Building_Medium_2001", x: -30, z: -46, ry: 2.9 },
   { g: "kit_brick", m: "Building_Small_1", x: 26, z: -47, ry: 3.35 },
 ];
 
