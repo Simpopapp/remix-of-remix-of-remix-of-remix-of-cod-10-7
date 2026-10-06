@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { loadGLB } from "@/game/assets/AssetLoader";
 import kitBrickAsset from "@/assets/kit_brick.asset.json";
 import { KIT_MODULES, type KitGroup } from "@/game/data/kitManifest";
@@ -134,8 +135,8 @@ export function createRuinedCity(
     const m4 = new THREE.Matrix4();
     for (const p of KIT_PLACEMENTS) {
       const a = KIT_MODULES[p.g]?.[p.m];
-      const template = templates.get(`${p.g}/${p.m}`);
-      if (!a || !template) {
+      const parts = templates.get(`${p.g}/${p.m}`);
+      if (!a || !parts) {
         console.warn(`[ruins] módulo ausente no GLB: ${p.g}/${p.m}`);
         continue;
       }
@@ -158,10 +159,12 @@ export function createRuinedCity(
       m4.multiply(new THREE.Matrix4().makeTranslation(cx, ay, cz));
       m4.multiply(new THREE.Matrix4().compose(new THREE.Vector3(), q, new THREE.Vector3(s, s, s)));
       m4.multiply(new THREE.Matrix4().makeTranslation(-cx, -ay, -cz));
-      const key = `${p.g}/${p.m}`;
-      const entry = instancer.get(key) ?? { template, matrices: [] };
-      entry.matrices.push(m4.clone());
-      instancer.set(key, entry);
+      parts.forEach((template, pi) => {
+        const key = `${p.g}/${p.m}#${pi}`;
+        const entry = instancer.get(key) ?? { template, matrices: [] };
+        entry.matrices.push(m4.clone());
+        instancer.set(key, entry);
+      });
     }
 
     for (const [key, { template, matrices }] of instancer) {
@@ -193,8 +196,8 @@ export function createRuinedCity(
       const rng = mulberry32(pile.seed);
       const perMod = Math.floor(pile.count / mods.length);
       for (const key of mods) {
-        const template = templates.get(key);
-        if (!template) continue;
+        const parts = templates.get(key);
+        if (!parts) continue;
         const matrices: THREE.Matrix4[] = [];
         for (let i = 0; i < perMod; i++) {
           const a = rng() * Math.PI * 2;
@@ -213,13 +216,19 @@ export function createRuinedCity(
           );
           matrices.push(m);
         }
-        const inst = new THREE.InstancedMesh(template.geometry, template.material, matrices.length);
-        for (let i = 0; i < matrices.length; i++) inst.setMatrixAt(i, matrices[i]!);
-        inst.instanceMatrix.needsUpdate = true;
-        inst.castShadow = true;
-        inst.receiveShadow = true;
-        hitMeshes?.push(inst);
-        group.add(inst);
+        for (const template of parts) {
+          const inst = new THREE.InstancedMesh(
+            template.geometry,
+            template.material,
+            matrices.length,
+          );
+          for (let i = 0; i < matrices.length; i++) inst.setMatrixAt(i, matrices[i]!);
+          inst.instanceMatrix.needsUpdate = true;
+          inst.castShadow = true;
+          inst.receiveShadow = true;
+          hitMeshes?.push(inst);
+          group.add(inst);
+        }
       }
     }
   };
@@ -291,25 +300,28 @@ export function createRuinedCity(
   const buildProps = (): void => {
     // módulos-prop do kit (planter, AC unit): mesh único ancorado pela base
     const placeKitProp = (key: string, x: number, z: number, y: number, ry: number): void => {
-      const template = templates.get(key);
-      if (!template) {
+      const parts = templates.get(key);
+      if (!parts) {
         console.warn(`[ruins] módulo-prop ausente no GLB: ${key}`);
         return;
       }
-      const geo = template.geometry;
-      if (!geo.boundingBox) geo.computeBoundingBox();
-      const bb = geo.boundingBox!;
+      const holder = new THREE.Group();
+      for (const { geometry, material } of parts) {
+        holder.add(new THREE.Mesh(geometry, material));
+      }
+      holder.updateMatrixWorld(true);
+      const bb = new THREE.Box3().setFromObject(holder);
       const cx = (bb.min.x + bb.max.x) / 2;
       const cz = (bb.min.z + bb.max.z) / 2;
       const ay = bb.min.y;
-      const m = new THREE.Matrix4()
-        .makeTranslation(x, y, z)
-        .multiply(new THREE.Matrix4().makeTranslation(cx, ay, cz))
-        .multiply(new THREE.Matrix4().makeRotationY(ry))
-        .multiply(new THREE.Matrix4().makeTranslation(-cx, -ay, -cz));
-      const mesh = new THREE.Mesh(geo, template.material);
-      mesh.applyMatrix4(m);
-      place(mesh);
+      holder.applyMatrix4(
+        new THREE.Matrix4()
+          .makeTranslation(x, y, z)
+          .multiply(new THREE.Matrix4().makeTranslation(cx, ay, cz))
+          .multiply(new THREE.Matrix4().makeRotationY(ry))
+          .multiply(new THREE.Matrix4().makeTranslation(-cx, -ay, -cz)),
+      );
+      place(holder);
     };
 
     const placeProp = (
@@ -376,7 +388,7 @@ export function createRuinedCity(
   };
 
   // ---------- carregamento ----------
-  const templates = new Map<string, ModuleTemplate>();
+  const templates = new Map<string, ModuleTemplate[]>();
   const ready = (async () => {
     const kitGltfs = await Promise.all(
       (Object.keys(KIT_URLS) as KitGroup[]).map(async (g) => ({
@@ -393,19 +405,73 @@ export function createRuinedCity(
 
     if (disposed) return;
 
+    // Módulos: o nome canônico está em algum nó da cadeia (mesh ou ancestral),
+    // mas meshes têm nomes auto-gerados (Plane235…). Resolve aceitando o
+    // primeiro nome da cadeia que exista no manifesto do grupo; sub-meshes do
+    // mesmo módulo/material são mescladas em uma única geometria.
+    const nearestModule = (o: THREE.Object3D, valid: Set<string>): string => {
+      let cur: THREE.Object3D | null = o;
+      while (cur) {
+        if (cur.name && valid.has(cur.name)) return cur.name;
+        cur = cur.parent;
+      }
+      return "";
+    };
     for (const { g, gltf } of kitGltfs) {
       gltf.scene.updateMatrixWorld(true);
+      const valid = new Set(Object.keys(KIT_MODULES[g]));
+      const acc = new Map<string, Map<THREE.Material, THREE.BufferGeometry[]>>();
       gltf.scene.traverse((node) => {
         const mesh = node as THREE.Mesh;
         if (!mesh.isMesh) return;
-        const name = node.name;
-        if (!name) return;
-        if (templates.has(`${g}/${name}`)) return;
-        const geometry = mesh.geometry.clone();
-        geometry.applyMatrix4(node.matrixWorld);
-        geos.push(geometry);
-        templates.set(`${g}/${name}`, { geometry, material: mesh.material });
+        const modName = nearestModule(node, valid);
+        if (!modName) return;
+        const key = `${g}/${modName}`;
+        const byMat = acc.get(key) ?? new Map<THREE.Material, THREE.BufferGeometry[]>();
+        const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material)!;
+        const geo = mesh.geometry.clone();
+        if (Array.isArray(mesh.material)) geo.clearGroups();
+        geo.applyMatrix4(mesh.matrixWorld);
+        // A conversão gera atributos com gpuType inconsistente entre
+        // sub-meshes (uint8/uint16 normalizado vs float), quebrando
+        // mergeGeometries — normaliza todos para Float32.
+        for (const name of Object.keys(geo.attributes)) {
+          const attr = geo.getAttribute(name) as THREE.BufferAttribute;
+          if (attr.array.constructor === Float32Array) continue;
+          const flat = new Float32Array(attr.count * attr.itemSize);
+          for (let i = 0; i < attr.count; i++) {
+            for (let c = 0; c < attr.itemSize; c++) {
+              flat[i * attr.itemSize + c] = attr.getComponent(i, c);
+            }
+          }
+          geo.setAttribute(name, new THREE.Float32BufferAttribute(flat, attr.itemSize));
+        }
+        const list = byMat.get(mat) ?? [];
+        list.push(geo);
+        byMat.set(mat, list);
+        acc.set(key, byMat);
       });
+      for (const [key, byMat] of acc) {
+        if (templates.has(key)) continue;
+        const parts: ModuleTemplate[] = [];
+        for (const [mat, geos] of byMat) {
+          // Alinha gpuType (a conversão marca atributos de forma inconsistente
+          // entre sub-meshes) usando a primeira geometria como referência.
+          for (const name of Object.keys(geos[0]!.attributes)) {
+            const refGpu = (geos[0]!.getAttribute(name) as THREE.BufferAttribute).gpuType;
+            for (const geo of geos) {
+              const attr = geo.getAttribute(name) as THREE.BufferAttribute | undefined;
+              if (attr && attr.gpuType !== refGpu) attr.gpuType = refGpu;
+            }
+          }
+          const merged = geos.length === 1 ? geos[0]! : mergeGeometries(geos, false);
+          if (!merged) continue;
+          for (const geo of geos) if (geo !== merged) geo.dispose();
+          geos.push(merged);
+          parts.push({ geometry: merged, material: mat });
+        }
+        if (parts.length) templates.set(key, parts);
+      }
     }
     for (const { k, gltf } of propGltfs) {
       gltf.scene.updateMatrixWorld(true);
