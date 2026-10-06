@@ -1,0 +1,164 @@
+{
+  "budgetTotalMB": 120,
+  "budgetFirstFrameMB": 40,
+  "assets": [
+    {
+      "id": "asphalt",
+      "type": "pbr-texture",
+      "path": "public/game-assets/textures/asphalt",
+      "files": [
+        "Diffuse.jpg",
+        "nor_gl.jpg",
+        "Rough.jpg",
+        "AO.jpg"
+      ],
+      "source": "polyhaven.com/a/asphalt_02",
+      "license": "CC0",
+      "priority": "P0"
+    },
+    {
+      "id": "dirt",
+      "type": "pbr-texture",
+      "path": "public/game-assets/textures/dirt",
+      "files": [
+        "Diffuse.jpg",
+        "nor_gl.jpg",
+        "Rough.jpg",
+        "AO.jpg"
+      ],
+      "source": "polyhaven.com/a/dirt",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "gravel",
+      "type": "pbr-texture",
+      "path": "public/game-assets/textures/gravel",
+      "files": [
+        "Diffuse.jpg",
+        "nor_gl.jpg",
+        "Rough.jpg",
+        "AO.jpg"
+      ],
+      "source": "polyhaven.com/a/gravel",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "brown_mud",
+      "type": "pbr-texture",
+      "path": "public/game-assets/textures/brown_mud",
+      "files": [
+        "Diffuse.jpg",
+        "nor_gl.jpg",
+        "Rough.jpg",
+        "AO.jpg"
+      ],
+      "source": "polyhaven.com/a/brown_mud",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "hdri-night",
+      "type": "hdri",
+      "path": "public/game-assets/hdri/night_1k.hdr",
+      "source": "polyhaven.com/a/dikhololo_night",
+      "license": "CC0",
+      "priority": "P0"
+    },
+    {
+      "id": "lut-military",
+      "type": "lut",
+      "path": "public/luts/military_teal_orange.png",
+      "source": "gerado no projeto",
+      "license": "project",
+      "priority": "P1"
+    },
+    {
+      "id": "draco-decoder",
+      "type": "decoder",
+      "path": "public/draco",
+      "files": [
+        "draco_decoder.js",
+        "draco_decoder.wasm",
+        "draco_wasm_wrapper.js"
+      ],
+      "source": "github.com/google/draco",
+      "license": "Apache-2.0",
+      "priority": "P1"
+    },
+    {
+      "id": "kit-brick",
+      "type": "glb",
+      "path": "public/game-assets/kit/kit_brick.glb",
+      "source": "quaternius.itch.io/downtown-city-megakit",
+      "license": "CC0",
+      "priority": "P1",
+      "assetJson": "src/assets/kit_brick.asset.json"
+    },
+    {
+      "id": "kit-trim",
+      "type": "glb",
+      "path": "public/game-assets/kit/kit_trim.glb",
+      "source": "quaternius.itch.io/downtown-city-megakit",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "kit-stone",
+      "type": "glb",
+      "path": "public/game-assets/kit/kit_stone.glb",
+      "source": "quaternius.itch.io/downtown-city-megakit",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "kit-street",
+      "type": "glb",
+      "path": "public/game-assets/kit/kit_street.glb",
+      "source": "quaternius.itch.io/downtown-city-megakit",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "kit-roof",
+      "type": "glb",
+      "path": "public/game-assets/kit/kit_roof.glb",
+      "source": "quaternius.itch.io/downtown-city-megakit",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "covered-car",
+      "type": "glb",
+      "path": "public/game-assets/props/covered_car.glb",
+      "source": "polyhaven.com/a/covered_car",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "concrete-road-barrier",
+      "type": "glb",
+      "path": "public/game-assets/props/concrete_road_barrier.glb",
+      "source": "polyhaven.com/a/concrete_road_barrier",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "street-lamp-01",
+      "type": "glb",
+      "path": "public/game-assets/props/street_lamp_01.glb",
+      "source": "polyhaven.com/a/street_lamp_01",
+      "license": "CC0",
+      "priority": "P1"
+    },
+    {
+      "id": "old-military-crate",
+      "type": "glb",
+      "path": "public/game-assets/props/old_military_crate.glb",
+      "source": "polyhaven.com/a/old_military_crate",
+      "license": "CC0",
+      "priority": "P1"
+    }
+  ]
+}

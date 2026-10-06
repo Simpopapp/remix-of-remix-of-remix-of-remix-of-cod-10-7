@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-10-06T02:33:29.390Z",
+  "totalMB": 51.7,
+  "firstFrameMB": 3.02,
+  "budgetTotalMB": 120,
+  "budgetFirstFrameMB": 40,
+  "assets": [
+    {
+      "id": "asphalt",
+      "mb": 1.36,
+      "priority": "P0",
+      "ok": true
+    },
+    {
+      "id": "dirt",
+      "mb": 2.77,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "gravel",
+      "mb": 3.68,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "brown_mud",
+      "mb": 2.2,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "hdri-night",
+      "mb": 1.66,
+      "priority": "P0",
+      "ok": true
+    },
+    {
+      "id": "lut-military",
+      "mb": 0.01,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "draco-decoder",
+      "mb": 1.01,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "kit-brick",
+      "mb": 13.83,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "kit-trim",
+      "mb": 4.74,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "kit-stone",
+      "mb": 8.09,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "kit-street",
+      "mb": 0.92,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "kit-roof",
+      "mb": 0.87,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "covered-car",
+      "mb": 2.24,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "concrete-road-barrier",
+      "mb": 3.58,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "street-lamp-01",
+      "mb": 2.36,
+      "priority": "P1",
+      "ok": true
+    },
+    {
+      "id": "old-military-crate",
+      "mb": 2.38,
+      "priority": "P1",
+      "ok": true
+    }
+  ]
+}
