@@ -432,17 +432,19 @@ export function createRuinedCity(
         const geo = mesh.geometry.clone();
         if (Array.isArray(mesh.material)) geo.clearGroups();
         geo.applyMatrix4(mesh.matrixWorld);
-        // A conversão gera `color` com gpuType inconsistente entre sub-meshes
-        // (uint8 normalizado vs float), quebrando mergeGeometries — normaliza.
-        const colorAttr = geo.getAttribute("color") as THREE.BufferAttribute | undefined;
-        if (colorAttr) {
-          const flat = new Float32Array(colorAttr.count * colorAttr.itemSize);
-          for (let i = 0; i < colorAttr.count; i++) {
-            for (let c = 0; c < colorAttr.itemSize; c++) {
-              flat[i * colorAttr.itemSize + c] = colorAttr.getComponent(i, c);
+        // A conversão gera atributos com gpuType inconsistente entre
+        // sub-meshes (uint8/uint16 normalizado vs float), quebrando
+        // mergeGeometries — normaliza todos para Float32.
+        for (const name of Object.keys(geo.attributes)) {
+          const attr = geo.getAttribute(name) as THREE.BufferAttribute;
+          if (attr.array.constructor === Float32Array) continue;
+          const flat = new Float32Array(attr.count * attr.itemSize);
+          for (let i = 0; i < attr.count; i++) {
+            for (let c = 0; c < attr.itemSize; c++) {
+              flat[i * attr.itemSize + c] = attr.getComponent(i, c);
             }
           }
-          geo.setAttribute("color", new THREE.Float32BufferAttribute(flat, colorAttr.itemSize));
+          geo.setAttribute(name, new THREE.Float32BufferAttribute(flat, attr.itemSize));
         }
         const list = byMat.get(mat) ?? [];
         list.push(geo);
